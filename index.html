@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snap Server</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io;      
+      window.SpeechRecognition =
+        window.SpeechRecognition || webkitSpeechRecognition;
+      recognition = new window.SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      let textEl = document.querySelector("#text");
+      let debugEl = document.querySelector("#debug");
+      let finalTranscript = "";
+      
+      let x = "";
+      recognition.addEventListener('error', function(event) {
+        debugEl.innerText = event.error + ' and ' + recognition
+      })
+
+      recognition.onresult = (event) => {
+        let interimTranscript = ""; 
+        
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ". ";
+            
+            //send only final transcript            
+            // socket.emit('finalT', event.results[i][0].transcript);
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+
+        let value = finalTranscript + interimTranscript;
+        // socket.emit('test', value)       
+        console.log(value)  
+        document.getElementById("log").innerHTML = value;   
+      };
+
+      recognition.start();     
+    </script>
+  </head>
+  <body>
+    <p id="log">Transcription should appear here...</p>
+  </body>
+</html>
