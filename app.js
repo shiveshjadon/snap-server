@@ -26,26 +26,35 @@ const port = 3000
 // let cors = require("cors");
 // app.use(cors());
 
+let common = "test"
 
 app.use(express.static(__dirname))
-
-let Message = ""
-
-//receive from py
-pyshell.on('message', function (message) {  
-  Message = message
-  //console.log(message);
-});
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/index.html'))
 })
 
 io.on('connection', (socket) => {
-  socket.emit("hello", "world");
-  for(let i=0; i<5; i++)
-    socket.emit("handshake", "hello world! ~from nodejs server!")
+  socket.on('message', (message) => {  
+    //console.log(message)
+    // pyshell.send(message) 
 
+    let options = {
+      mode: 'text',
+      pythonOptions: ['-u'], // get print results in real-time.
+      args: [message]
+    }
+    PythonShell.run('spacy-listen.py', options, function (err, result){
+      if (err) throw err;
+      console.log(result);
+      socket.broadcast.emit('message', result)
+    });
+  })
+
+  pyshell.on('message', (message) => {
+    console.log(message)
+    //socket.emit('message', message)
+  })
 
   socket.on('disconnect', () => {
     console.log('connection end')
@@ -55,7 +64,3 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log('listening on 3000')
 })
-
-// app.get('/entities', function (req, res) {
-//   res.send('sample entities')
-// })
