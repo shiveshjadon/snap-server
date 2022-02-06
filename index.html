@@ -7,7 +7,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io;      
+      var socket = io();      
       window.SpeechRecognition =
         window.SpeechRecognition || webkitSpeechRecognition;
       recognition = new window.SpeechRecognition();
@@ -19,9 +19,6 @@
       let finalTranscript = "";
       
       let x = "";
-      recognition.addEventListener('error', function(event) {
-        debugEl.innerText = event.error + ' and ' + recognition
-      })
 
       recognition.onresult = (event) => {
         let interimTranscript = ""; 
@@ -43,7 +40,7 @@
         document.getElementById("log").innerHTML = value;   
       };
 
-      recognition.start();     
+      recognition.start();    
     </script>
   </head>
   <body>
