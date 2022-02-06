@@ -32,19 +32,16 @@ header('Access-Control-Allow-Origin: *');
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript + ". ";
-            
-            //send only final transcript            
-            // socket.emit('finalT', event.results[i][0].transcript);
+            if(finalTranscript){
+              socket.emit('message', event.results[i][0].transcript)       
+              console.log(event.results[i][0].transcript)  
+            }
           } else {
             interimTranscript += event.results[i][0].transcript;
           }
         }
 
         let value = finalTranscript + interimTranscript;
-        if(finalTranscript){
-          socket.emit('message', finalTranscript)       
-          console.log(finalTranscript)  
-        }
         document.getElementById("log").innerHTML = value;   
       };
 

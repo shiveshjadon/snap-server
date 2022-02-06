@@ -36,12 +36,9 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   socket.on('message', (message) => {  
-    //console.log(message)
-    // pyshell.send(message) 
-
     let options = {
       mode: 'text',
-      pythonOptions: ['-u'], // get print results in real-time.
+      pythonOptions: ['-u'],
       args: [message]
     }
     PythonShell.run('spacy-listen.py', options, function (err, result){
@@ -53,7 +50,6 @@ io.on('connection', (socket) => {
 
   pyshell.on('message', (message) => {
     console.log(message)
-    //socket.emit('message', message)
   })
 
   socket.on('disconnect', () => {

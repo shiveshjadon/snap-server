@@ -6,18 +6,20 @@ import spacy
 
 text = sys.argv[-1]
 
-
 nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe("merge_noun_chunks")
 nlp.add_pipe("merge_entities")
 
-print("the text recieved is: "+text)
 doc = nlp(text)
+# console.log(doc)
 
-res = { "keywords": [], "tokens": [], "entities" : [] }
+res = {"transcription": [], "keywords": [], "entities" : []}
+res["transcription"].append({
+    "text": text,
+})
 
-# for chunk in doc.noun_chunks:
-#     res["keywords"].append(chunk.text)
+for chunk in doc.noun_chunks:
+    res["keywords"].append(chunk.text)
 
 # for token in doc:
 #     res["tokens"].append({
