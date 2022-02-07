@@ -1,16 +1,24 @@
 {
-  "name": "snapserver",
+  "name": "spacy",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "spacy-install": "python3 -m pip install -U pip setuptools wheel && python3 -m pip install -U spacy && python3 -m spacy download en_core_web_sm"
+    "spacy-install": "python3 -m pip install -U pip setuptools wheel && python3 -m pip install -U spacy && python3 -m spacy download en_core_web_sm && python3 -m pip install pytextrank"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryosuzuki/node-spacy.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryosuzuki/node-spacy/issues"
+  },
+  "homepage": "https://github.com/ryosuzuki/node-spacy#readme",
   "dependencies": {
-    "cors": "^2.8.5",
+    "duck-duck-scrape": "^2.2.1",
     "express": "^4.17.2",
     "python-shell": "^3.0.1",
     "socket.io": "^4.4.1",

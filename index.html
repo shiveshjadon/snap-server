@@ -1,54 +1,198 @@
 <!DOCTYPE html>
-<?PHP
-header('Access-Control-Allow-Origin: *');
-?>
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Snap Server</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <style>
+      body {
+        margin: 10px
+      }
+      .highlight {
+        cursor: pointer;
+      }
+      .highlight:hover {
+        font-weight: bold;
+      }
+      /*
+      - NN  Noun, singular or mass
+      - NNS Noun, plural
+      - NNP Proper noun, singular
+      - NNPS  Proper noun, plural
+      */
+      .tag-nns {
+        background: #96D4CC; /* dark green */
+      }
+      .tag-nnp {
+        background: #DBF5AE; /* green */
+      }
+      .tag-nn {
+        background: #BAE6A2; /* light green */
+      }
+      .entity-person {
+        background: #FDD1D2;
+      }
+      .entity-date {
+        background: #FFF4B0;
+      }
+      .entity-org {
+        background: #BAD8FF;
+      }
+      .keyword {
+        background: #96D4CC;
+      }
+      .image {
+        height: 100% !important;
+        object-fit: cover !important;
+      }
+    </style>
+
     <script>
-      var socket = io();      
+      var socket = io()
+
+      $(function () {
+        let text = $('textarea').val()
+        socket.emit('message', text)
+
+        $('textarea').on('input', function () {
+          let text = $('textarea').val()
+          text = text.replace(/(\r\n|\n|\r)/gm, ' ')
+          socket.emit('message', text)
+        })
+      })
+
+      function showKeyword(keyword) {
+        socket.emit('search', keyword)
+        $('#result-title').text(keyword)
+        $('#result-description').empty()
+        $('#result-images').empty()
+      }
+
+      socket.on('search', function(json) {
+        console.log(json)
+        if (json.noResults) return false
+        let description = json.results[0].description
+        $('#result-description').text(description)
+
+        for (let image of json.images) {
+          let cardEl = document.createElement('div')
+          $(cardEl).addClass('card')
+          let imageEl = document.createElement('img')
+          $(imageEl).attr('src', image.image)
+          $(imageEl).addClass('ui small image')
+          $(cardEl).append(imageEl)
+          $('#result-images').append(cardEl)
+        }
+      })
+
+      socket.on('message', function (message) {
+        let json = JSON.parse(message)
+        let res = JSON.stringify(json, null, 2)
+        $('pre').text(res)
+        console.log(json)
+        $('#result').empty()
+
+        let keywords = {}
+        for (let item of json.keywords) {
+          if (item.rank > 0) {
+            keywords[item.text] = item.rank
+          }
+        }
+        for (let token of json.tokens) {
+          let wordEl = document.createElement('span')
+          $(wordEl).text(token.text)
+          $(wordEl).addClass('word')
+          $(wordEl).addClass(`tag-${token.tag.toLowerCase()}`)
+          let targetTags = ['NN', 'NNP', 'NNS']
+          let highlight = false
+          if (targetTags.includes(token.tag)) {
+            $(wordEl).addClass('target')
+            highlight = true
+          }
+          if (token.ent_type !== '') {
+            $(wordEl).addClass('entity')
+            $(wordEl).addClass(`entity-${token.ent_type.toLowerCase()}`)
+            highlight = true
+          }
+          if (Object.keys(keywords).includes(token.text)) {
+            $(wordEl).addClass('keyword')
+            highlight = true
+          }
+          if (highlight) {
+            $(wordEl).addClass('highlight')
+            $(wordEl).click(function() {
+              console.log(token.text)
+              showKeyword(token.text)
+            })
+          }
+          $('#result').append(wordEl)
+          let spaceEl = document.createElement('span')
+          $(spaceEl).text(' ')
+          $('#result').append(spaceEl)
+        }
+      })
+
+
       window.SpeechRecognition =
         window.SpeechRecognition || webkitSpeechRecognition;
       recognition = new window.SpeechRecognition();
-      recognition.lang = 'en-US';
+      recognition.lang = "en-US";
       recognition.interimResults = true;
       recognition.continuous = true;
-      let textEl = document.querySelector("#text");
-      let debugEl = document.querySelector("#debug");
-      let finalTranscript = "";
-      
-      let x = "";
+
       recognition.addEventListener('error', function(event) {
-        debugEl.innerText = event.error + ' and ' + recognition
+        console.log(event.error + ' and ' + recognition)
       })
 
+      let finalTranscript = "";
       recognition.onresult = (event) => {
-        let interimTranscript = ""; 
-        
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let interimTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          let transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript + ". ";
-            if(finalTranscript){
-              socket.emit('message', event.results[i][0].transcript)       
-              console.log(event.results[i][0].transcript)  
-            }
+            finalTranscript += transcript;
+            interimTranscript = "";
           } else {
-            interimTranscript += event.results[i][0].transcript;
+            interimTranscript += transcript;
           }
+          let text = finalTranscript + interimTranscript;
+          // debugEl.innerText = value
+          // textEl.setAttribute("value", value);
+          text = text.replace(/(\r\n|\n|\r)/gm, ' ')
+          console.log(`emitting ${text}`)
+          socket.emit('message', text)
         }
-
-        let value = finalTranscript + interimTranscript;
-        document.getElementById("log").innerHTML = value;   
       };
 
-      recognition.start();     
+      recognition.start();
+
+
     </script>
   </head>
   <body>
-    <p id="log">Transcription should appear here...</p>
+    <div class="ui grid">
+      <div class="sixteeen wide column ui form">
+        <textarea></textarea>        
+      </div>
+    </div>
+    <div class="ui grid">
+      <div class="four wide column">
+        <pre></pre>
+      </div>
+      <div class="one wide column"></div>
+      <div class="ten wide column">
+        <div class="ui message">
+          <div class="header">
+          </div>
+          <p id="result"></p>
+        </div>
+        <div class="ui very padded segment">
+          <h1 id="result-title"></h1>
+          <p id="result-description"></p>
+          <div id="result-images" class="ui four cards"></div>
+        </div>
+      </div>
   </body>
 </html>
