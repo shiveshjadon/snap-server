@@ -54,12 +54,12 @@
 
       $(function () {
         let text = $('textarea').val()
-        socket.emit('message', text)
+        //socket.emit('message', text)
 
         $('textarea').on('input', function () {
           let text = $('textarea').val()
           text = text.replace(/(\r\n|\n|\r)/gm, ' ')
-          socket.emit('message', text)
+         //socket.emit('message', text)
         })
       })
 
@@ -154,6 +154,8 @@
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
             interimTranscript = "";
+            console.log(`emitting ${transcript}`)
+            socket.emit('message', transcript)
           } else {
             interimTranscript += transcript;
           }
@@ -161,8 +163,8 @@
           // debugEl.innerText = value
           // textEl.setAttribute("value", value);
           text = text.replace(/(\r\n|\n|\r)/gm, ' ')
-          console.log(`emitting ${text}`)
-          socket.emit('message', text)
+          // console.log(`emitting ${text}`)
+          // socket.emit('message', text)
         }
       };
 

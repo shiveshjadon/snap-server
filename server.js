@@ -21,6 +21,8 @@ const io = socketio(server, {
   }
 })
 
+const { image_search } = require('duckduckgo-images-api')
+
 app.use(express.static(__dirname))
 
 app.get('/', (req, res) => {
@@ -31,16 +33,36 @@ server.listen(port, () => {
   console.log('listening on 3000')
 })
 
+lastm = ""
+
 io.on('connection', (socket) => {
   console.log('connection start')
 
-  socket.on('message', (message) => {
+  socket.on('message', (message) => {    
     pyshell.send(message)
   })
 
   pyshell.on('message', (message) => {
     // socket.emit('message', message)
-    socket.broadcast.emit('message', message)
+    if(lastm != message){
+      lastm = message
+      console.log(message)
+      socket.broadcast.emit('message', message)
+    }
+  })
+
+  //recieve img request 
+  socket.on('query', (query) => {  
+    console.log("got request for query: ", query)  
+    image_search({ 
+      query: query, 
+      moderate : true,   
+      iterations : 1,
+      retries  : 1
+    }).then(function(res) {
+      console.log(res[0])
+      socket.emit('img', res[0])
+    })
   })
 
   socket.on('search', (keyword) => {
