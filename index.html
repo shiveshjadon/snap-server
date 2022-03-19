@@ -94,12 +94,12 @@
         console.log(json)
         $('#result').empty()
 
-        let keywords = {}
-        for (let item of json.keywords) {
-          if (item.rank > 0) {
-            keywords[item.text] = item.rank
-          }
-        }
+        // let keywords = {}
+        // for (let item of json.keywords) {
+        //   if (item.rank > 0) {
+        //     keywords[item.text] = item.rank
+        //   }
+        // }
         for (let token of json.tokens) {
           let wordEl = document.createElement('span')
           $(wordEl).text(token.text)
@@ -116,10 +116,10 @@
             $(wordEl).addClass(`entity-${token.ent_type.toLowerCase()}`)
             highlight = true
           }
-          if (Object.keys(keywords).includes(token.text)) {
-            $(wordEl).addClass('keyword')
-            highlight = true
-          }
+          // if (Object.keys(keywords).includes(token.text)) {
+          //   $(wordEl).addClass('keyword')
+          //   highlight = true
+          // }
           if (highlight) {
             $(wordEl).addClass('highlight')
             $(wordEl).click(function() {
@@ -159,12 +159,12 @@
           } else {
             interimTranscript += transcript;
           }
-          let text = finalTranscript + interimTranscript;
+          //let text = finalTranscript + interimTranscript;
           // debugEl.innerText = value
           // textEl.setAttribute("value", value);
-          text = text.replace(/(\r\n|\n|\r)/gm, ' ')
-          // console.log(`emitting ${text}`)
-          // socket.emit('message', text)
+          //text = text.replace(/(\r\n|\n|\r)/gm, ' ')
+          console.log(`REALTIME : ${interimTranscript}`)
+          //socket.emit('realtime', text)
         }
       };
 
