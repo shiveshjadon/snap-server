@@ -42,9 +42,9 @@ io.on('connection', (socket) => {
     pyshell.send(message)
   })
 
-  socket.on('realtime', (m) => {
-    socket.broadcast.emit('realtime', m)
-  })
+  // socket.on('realtime', (m) => {
+  //   socket.broadcast.emit('realtime', m)
+  // })
 
   pyshell.on('message', (message) => {
     // socket.emit('message', message)
