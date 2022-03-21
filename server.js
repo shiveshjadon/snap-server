@@ -63,10 +63,14 @@ io.on('connection', (socket) => {
       moderate : true,   
       iterations : 1,
       retries  : 1
-    }).then(function(res) {
-      console.log(res[0])
-      socket.emit('img', res[0])
+    }).then((res) => {
+      console.log(res)
+      socket.emit('img', res.slice(0, 5))
     })
+    // }).then(function(res) {
+    //   console.log(res[0])
+    //   socket.emit('img', res[0])
+    // })
   })
 
   socket.on('search', (keyword) => {
