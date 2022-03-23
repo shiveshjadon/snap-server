@@ -91,7 +91,7 @@
         let json = JSON.parse(message)
         let res = JSON.stringify(json, null, 2)
         $('pre').text(res)
-        console.log(json)
+        console.log("sent to client!")
         $('#result').empty()
 
         // let keywords = {}
@@ -154,7 +154,7 @@
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
             interimTranscript = "";
-            console.log(`emitting ${transcript}`)
+            // console.log(`emitting ${transcript}`)
             socket.emit('message', transcript)
           } else {
             interimTranscript += transcript;
