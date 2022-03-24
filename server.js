@@ -2,22 +2,16 @@ const {PythonShell} = require('python-shell')
 const pyshell = new PythonShell('spacy-listen.py')
 const DDG = require('duck-duck-scrape')
 const express = require('express')
-
-const fs = require('fs');
-const key = fs.readFileSync('./key.pem');
-const cert = fs.readFileSync('./cert.pem');
-
-const https = require('https');
+const http = require('http')
 const path = require('path')
 const app = express()
-
 app.use((req,res,next)=>{
   res.setHeader('Acces-Control-Allow-Origin','*');
   res.setHeader('Acces-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
   res.setHeader('Acces-Contorl-Allow-Methods','Content-Type','Authorization');
   next(); 
 })
-const server = https.createServer({key: key, cert: cert }, app);
+const server = http.Server(app)
 const port = 3000
 
 const socketio = require('socket.io')
@@ -93,8 +87,3 @@ io.on('connection', (socket) => {
     console.log('connection end')
   })
 })
-
-
-
-
-

@@ -22,6 +22,8 @@
     "duckduckgo-images-api": "^1.0.5",
     "express": "^4.17.2",
     "python-shell": "^3.0.1",
+    "rec-la": "^0.2.1",
+    "rec.la": "^0.3.0",
     "socket.io": "^4.4.1",
     "spacy": "^0.0.4"
   }
